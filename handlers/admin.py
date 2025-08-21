@@ -1,4 +1,5 @@
-from pyrogram import Client, filters
+from bot import app
+from pyrogram import filters
 from pyrogram.types import Message
 from database import update_wallet, set_table_charge, get_admin_wallet, get_all_users, approve_withdrawal
 from utils import is_admin
@@ -14,7 +15,7 @@ def admin_only(func):
         await func(client, message)
     return wrapper
 
-@Client.on_message(filters.command("addwallet"))
+@app.on_message(filters.command("addwallet"))
 @admin_only
 async def admin_addwallet_handler(client, message: Message):
     try:
@@ -24,7 +25,7 @@ async def admin_addwallet_handler(client, message: Message):
     except:
         await message.reply("Usage: /addwallet <user_id> <amount>")
 
-@Client.on_message(filters.command("tablecharge"))
+@app.on_message(filters.command("tablecharge"))
 @admin_only
 async def tablecharge_handler(client, message: Message):
     try:
@@ -34,7 +35,7 @@ async def tablecharge_handler(client, message: Message):
     except:
         await message.reply("Usage: /tablecharge <amount>")
 
-@Client.on_message(filters.command("approve"))
+@app.on_message(filters.command("approve"))
 @admin_only
 async def approve_withdrawal_handler(client, message: Message):
     try:
@@ -44,7 +45,7 @@ async def approve_withdrawal_handler(client, message: Message):
     except:
         await message.reply("Usage: /approve <user_id> <amount>")
 
-@Client.on_message(filters.command("win"))
+@app.on_message(filters.command("win"))
 @admin_only
 async def win_handler(client, message: Message):
     try:
@@ -54,7 +55,7 @@ async def win_handler(client, message: Message):
     except:
         await message.reply("Usage: /win <user_id> <amount>")
 
-@Client.on_message(filters.command("totalusers"))
+@app.on_message(filters.command("totalusers"))
 @admin_only
 async def totalusers_handler(client, message: Message):
     users = get_all_users()
@@ -63,7 +64,7 @@ async def totalusers_handler(client, message: Message):
         text += f"{user['username']} ({user['user_id']}): ₹{user['wallet']:.2f}\n"
     await message.reply(text)
 
-@Client.on_message(filters.command("adminwallet"))
+@app.on_message(filters.command("adminwallet"))
 @admin_only
 async def adminwallet_handler(client, message: Message):
     amt = get_admin_wallet()
@@ -72,7 +73,7 @@ async def adminwallet_handler(client, message: Message):
 
 
 # Command: /addgroup <group_id>
-@Client.on_message(filters.command("addgroup") & filters.user(ADMINS))
+@app.on_message(filters.command("addgroup") & filters.user(ADMINS))
 async def add_premium_group(client, message):
     try:
         group_id = int(message.command[1])
@@ -81,7 +82,7 @@ async def add_premium_group(client, message):
     except:
         await message.reply("❌ Invalid format. Use /addgroup group_id")
 
-@Client.on_message(filters.command("setplan") & filters.user(ADMINS))
+@app.on_message(filters.command("setplan") & filters.user(ADMINS))
 async def set_subscription_plan(client, message):
     plans = {
         "1mon": (100, 30),
@@ -104,7 +105,7 @@ async def set_subscription_plan(client, message):
     await message.reply(f"Group {group_id} upgraded to premium until {end.date()}.")
 
 # Command: /groupinfo <group_id>
-@Client.on_message(filters.command("groupinfo"))
+@app.on_message(filters.command("groupinfo"))
 async def groupinfo_handler(client, message):
     if message.from_user.id != OWNER_ID:
         return await message.reply("Only owner can check group info.")
