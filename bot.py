@@ -3,6 +3,7 @@ import config
 from pyrogram import Client, filters
 from pyrogram.types import InlineKeyboardMarkup, InlineKeyboardButton
 from database import create_tables, add_user
+import config
 
 # For Koyeb/Render/Heroku compatibility (not strictly required for polling, but no harm)
 PORT = int(os.environ.get("PORT", 8080))
@@ -20,12 +21,20 @@ START_BTN = InlineKeyboardMarkup([
     [InlineKeyboardButton("Contact Admin", url="https://t.me/admin_username")]
 ])
 
-@app.on_message(filters.command("start") & filters.private)
-async def start(client, message):
-    thumb = "start_thumb.jpg"
+#@app.on_message(filters.command("start") & filters.private)
+#async def start(client, message):
+#    thumb = "start_thumb.jpg"
+#    await message.reply_photo(
+#        thumb,
+#        caption="Welcome to Ludo King Bot! Play and Win.\nJoin a match, send /wallet to check balance.",
+#        reply_markup=START_BTN
+#    )
+
+@app.on_message(filters.command("start"))
+async def start_handler(client, message):
     await message.reply_photo(
-        thumb,
-        caption="Welcome to Ludo King Bot! Play and Win.\nJoin a match, send /wallet to check balance.",
+        "start_thumb.jpg",
+        caption="Welcome to Ludo King Bot! Play and Win.",
         reply_markup=START_BTN
     )
     add_user(message.from_user.id, message.from_user.username)
@@ -38,3 +47,4 @@ import handlers.game
 if __name__ == "__main__":
     # For polling (default), PORT is not used. For webhooks, you can use it.
     app.run()
+
