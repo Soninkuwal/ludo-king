@@ -2,6 +2,9 @@ from pyrogram import Client, filters
 from pyrogram.types import Message
 from database import update_wallet, set_table_charge, get_admin_wallet, get_all_users, approve_withdrawal
 from utils import is_admin
+from datetime import datetime, timedelta
+from database import add_group, set_group_premium, get_plan, get_group
+from config import OWNER_ID, ADMINS
 
 def admin_only(func):
     async def wrapper(client, message):
@@ -64,4 +67,53 @@ async def totalusers_handler(client, message: Message):
 @admin_only
 async def adminwallet_handler(client, message: Message):
     amt = get_admin_wallet()
+
     await message.reply(f"Admin wallet: ₹{amt:.2f}")
+
+
+# Command: /addgroup <group_id>
+@Client.on_message(filters.command("addgroup"))
+async def addgroup_handler(client, message):
+    if message.from_user.id not in ADMINS and message.from_user.id != OWNER_ID:
+        return await message.reply("Only owner/admin can approve groups.")
+    parts = message.text.split()
+    if len(parts) < 2:
+        return await message.reply("Usage: /addgroup <group_id>")
+    group_id = int(parts[1])
+    add_group(group_id, message.from_user.id)
+    await message.reply(f"Group {group_id} approved! Now add premium plan if needed.")
+
+# Command: /addplan <group_id> <plan_name>
+@Client.on_message(filters.command("addplan"))
+async def addplan_handler(client, message):
+    if message.from_user.id != OWNER_ID:
+        return await message.reply("Only owner can assign premium plans.")
+    parts = message.text.split()
+    if len(parts) < 3:
+        return await message.reply("Usage: /addplan <group_id> <plan_name>")
+    group_id = int(parts[1])
+    plan_name = parts[2]
+    plan = get_plan(plan_name)
+    if not plan:
+        return await message.reply("Plan not found. Use 1mon/3mon/12mon.")
+    start = datetime.utcnow()
+    end = start + timedelta(days=plan['duration_days'])
+    set_group_premium(group_id, 1, start.isoformat(), end.isoformat())
+    await message.reply(f"Group {group_id} upgraded to premium until {end.date()}.")
+
+# Command: /groupinfo <group_id>
+@Client.on_message(filters.command("groupinfo"))
+async def groupinfo_handler(client, message):
+    if message.from_user.id != OWNER_ID:
+        return await message.reply("Only owner can check group info.")
+    parts = message.text.split()
+    if len(parts) < 2:
+        return await message.reply("Usage: /groupinfo <group_id>")
+    group = get_group(int(parts[1]))
+    if not group:
+        return await message.reply("Group not found.")
+    await message.reply(
+        f"Group: {group['group_id']}\nPremium: {group['is_premium']}\n"
+        f"Plan: {group['plan_start']} to {group['plan_end']}\n"
+        f"Added by: {group['added_by']}"
+    )
