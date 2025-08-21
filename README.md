@@ -62,6 +62,25 @@ heroku config:set API_ID=xxx API_HASH=xxx BOT_TOKEN=xxx
 heroku ps:scale web=1
 ```
 
+## Deploy on Koyeb, Render, Heroku
+
+### Port Variable
+
+On Koyeb, Render, and Heroku, the `PORT` environment variable is automatically set by the platform.  
+This bot is ready for polling mode (no special port required), but if you use webhooks or need port, the following will work:
+
+- The bot reads `PORT` from environment (defaults to 8080).
+- For Heroku: No extra changes needed, just ensure your Procfile exists and deploy.
+
+### Heroku
+
+```bash
+heroku create
+heroku buildpacks:add heroku/python
+git push heroku main
+heroku config:set API_ID=xxx API_HASH=xxx BOT_TOKEN=xxx
+```
+
 ### Cloudflare (via Workers for API or with worker-proxy)
 
 - [Cloudflare Workers Python Guide](https://developers.cloudflare.com/workers/)
@@ -100,5 +119,6 @@ heroku ps:scale web=1
 ---
 
 ## License
+
 
 MIT
