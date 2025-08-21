@@ -19,8 +19,8 @@ def is_group_allowed(group_id):
             return True
     return False
 
-@Client.on_message(filters.group & filters.text & filters.regex(r"^\d+$"))
-async def amount_message_handler(client, message):
+@Client.on_message(filters.group & filters.text & filters.regex(r'^([51020340])0?r$'))
+async def handle_amount(client, message):
     group_id = message.chat.id
     if not is_group_allowed(group_id):
         await message.reply(
@@ -30,8 +30,22 @@ async def amount_message_handler(client, message):
             parse_mode="markdown"
         )
         return
-    # ... rest of logic for table creation ...
-
+    # Create game table
+    amount = int(message.text.strip('r'))
+    table_id = database.create_table(
+        group_id=message.chat.id,
+        creator_id=message.from_user.id,
+        amount=amount
+    )
+    
+    await message.reply(
+        f"✅ Table Created!\nPlayer: {message.from_user.id}\nAmount: {amount}R\n"
+        "Choose action:",
+        reply_markup=InlineKeyboardMarkup([
+            [InlineKeyboardButton("❌ Cancel", callback_data=f"cancel_{table_id}")],
+            [InlineKeyboardButton("▶️ Start Game", callback_data=f"start_{table_id}")]
+        ])
+    )
 
 
 @Client.on_message(filters.command("wallet"))
