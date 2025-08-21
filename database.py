@@ -78,7 +78,7 @@ def create_tables():
         with sqlite3.connect('ludo.db') as con:
             cur = con.cursor()
             
-            # Create premium groups table
+            # Premium groups table
             cur.execute("""
             CREATE TABLE IF NOT EXISTS premium_groups (
                 group_id INTEGER PRIMARY KEY,
@@ -86,26 +86,27 @@ def create_tables():
                 expiry_date TIMESTAMP
             )
             """)
-    
-            # Create game tables
+            
+            # Game tables
             cur.execute("""
             CREATE TABLE IF NOT EXISTS game_tables (
                 id INTEGER PRIMARY KEY AUTOINCREMENT,
                 group_id INTEGER,
                 amount INTEGER,
                 players TEXT,
-                status TEXT DEFAULT 'waiting',
-                created_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP
+                status TEXT DEFAULT 'waiting'
             )
             """)
             
             con.commit()
-    
-    CREATE TABLE IF NOT EXISTS subscriptions (
+
+    cur.execute("""
+    CREATE TABLE IF NOT EXISTS subscriptions ( 
         group_id INTEGER PRIMARY KEY,
         plan_type TEXT,
         end_date DATETIME
     );
+    """)
     con.commit()
     con.close()
 
