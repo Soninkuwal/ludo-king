@@ -1,6 +1,38 @@
 from pyrogram import Client, filters
 from pyrogram.types import Message
 from database import add_user, get_wallet, update_wallet, add_withdrawal, get_username
+from database import get_group
+from datetime import datetime
+from config import OWNER_ID
+
+
+def is_group_allowed(group_id):
+    group = get_group(group_id)
+    if not group:
+        return False
+    # Owner's group always allowed
+    if group['added_by'] == OWNER_ID:
+        return True
+    # Premium check
+    if group['is_premium']:
+        if group['plan_end'] and datetime.fromisoformat(group['plan_end']) > datetime.utcnow():
+            return True
+    return False
+
+@Client.on_message(filters.group & filters.text & filters.regex(r"^\d+$"))
+async def amount_message_handler(client, message):
+    group_id = message.chat.id
+    if not is_group_allowed(group_id):
+        await message.reply(
+            "This group is not premium or not approved.\n"
+            "Contact bot owner to activate premium plan.\n"
+            f"Owner: [{OWNER_ID}](tg://user?id={OWNER_ID})",
+            parse_mode="markdown"
+        )
+        return
+    # ... rest of logic for table creation ...
+
+
 
 @Client.on_message(filters.command("wallet"))
 async def wallet_handler(client, message: Message):
@@ -33,4 +65,5 @@ async def join_table_handler(client, callback_query):
 @Client.on_message(filters.command("tablechat"))
 async def tablechat_handler(client, message: Message):
     # Demo: just for sample
+
     await message.reply("Chat link functionality is under development.")
