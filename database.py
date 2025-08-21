@@ -50,6 +50,31 @@ def create_tables():
     con.commit()
     con.close()
 
+
+# Add to create_tables()
+cur.execute("""
+CREATE TABLE IF NOT EXISTS groups (
+    group_id INTEGER PRIMARY KEY,
+    added_by INTEGER,
+    is_premium INTEGER DEFAULT 0,
+    plan_start TEXT,
+    plan_end TEXT
+)
+""")
+cur.execute("""
+CREATE TABLE IF NOT EXISTS plans (
+    plan_name TEXT PRIMARY KEY,
+    duration_days INTEGER,
+    price REAL
+)
+""")
+# Add initial plans
+cur.execute("INSERT OR IGNORE INTO plans VALUES ('1mon', 30, 100)")
+cur.execute("INSERT OR IGNORE INTO plans VALUES ('3mon', 90, 300)")
+cur.execute("INSERT OR IGNORE INTO plans VALUES ('12mon', 365, 1200)")
+con.commit()
+
+
 def add_user(user_id, username):
     con = get_db()
     cur = con.cursor()
@@ -141,4 +166,38 @@ def get_username(user_id):
     cur.execute("SELECT username FROM users WHERE user_id = ?", (user_id,))
     r = cur.fetchone()
     con.close()
+
     return r["username"] if r else ""
+
+
+
+def add_group(group_id, user_id, is_premium=0, start=None, end=None):
+    con = get_db()
+    cur = con.cursor()
+    cur.execute("INSERT OR IGNORE INTO groups (group_id, added_by, is_premium, plan_start, plan_end) VALUES (?, ?, ?, ?, ?)",
+                (group_id, user_id, is_premium, start, end))
+    con.commit()
+    con.close()
+
+def set_group_premium(group_id, is_premium, start, end):
+    con = get_db()
+    cur = con.cursor()
+    cur.execute("UPDATE groups SET is_premium=?, plan_start=?, plan_end=? WHERE group_id=?", (is_premium, start, end, group_id))
+    con.commit()
+    con.close()
+
+def get_group(group_id):
+    con = get_db()
+    cur = con.cursor()
+    cur.execute("SELECT * FROM groups WHERE group_id=?", (group_id,))
+    r = cur.fetchone()
+    con.close()
+    return dict(r) if r else None
+
+def get_plan(plan_name):
+    con = get_db()
+    cur = con.cursor()
+    cur.execute("SELECT * FROM plans WHERE plan_name=?", (plan_name,))
+    r = cur.fetchone()
+    con.close()
+    return dict(r) if r else None
