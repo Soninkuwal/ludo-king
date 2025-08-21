@@ -72,20 +72,22 @@ async def adminwallet_handler(client, message: Message):
 
 
 # Command: /addgroup <group_id>
-@Client.on_message(filters.command("addgroup"))
-async def addgroup_handler(client, message):
-    if message.from_user.id not in ADMINS and message.from_user.id != OWNER_ID:
-        return await message.reply("Only owner/admin can approve groups.")
-    parts = message.text.split()
-    if len(parts) < 2:
-        return await message.reply("Usage: /addgroup <group_id>")
-    group_id = int(parts[1])
-    add_group(group_id, message.from_user.id)
-    await message.reply(f"Group {group_id} approved! Now add premium plan if needed.")
+@Client.on_message(filters.command("addgroup") & filters.user(ADMINS))
+async def add_premium_group(client, message):
+    try:
+        group_id = int(message.command[1])
+        database.add_premium_group(group_id)
+        await message.reply(f"🆕 Group {group_id} added successfully!")
+    except:
+        await message.reply("❌ Invalid format. Use /addgroup group_id")
 
-# Command: /addplan <group_id> <plan_name>
-@Client.on_message(filters.command("addplan"))
-async def addplan_handler(client, message):
+@Client.on_message(filters.command("setplan") & filters.user(ADMINS))
+async def set_subscription_plan(client, message):
+    plans = {
+        "1mon": (100, 30),
+        "3mon": (300, 90),
+        "12mon": (1200, 365)
+    }
     if message.from_user.id != OWNER_ID:
         return await message.reply("Only owner can assign premium plans.")
     parts = message.text.split()
