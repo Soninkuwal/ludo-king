@@ -73,7 +73,7 @@ async def adminwallet_handler(client, message: Message):
 
 
 # Command: /addgroup <group_id>
-@app.on_message(filters.command("addgroup") & filters.user(ADMINS))
+@app.on_message(filters.command("addgroup")) # & filters.user(ADMINS)
 async def add_premium_group(client, message):
     try:
         group_id = int(message.command[1])
@@ -82,7 +82,7 @@ async def add_premium_group(client, message):
     except:
         await message.reply("❌ Invalid format. Use /addgroup group_id")
 
-@app.on_message(filters.command("setplan") & filters.user(ADMINS))
+@app.on_message(filters.command("setplan"))
 async def set_subscription_plan(client, message):
     plans = {
         "1mon": (100, 30),
@@ -120,3 +120,4 @@ async def groupinfo_handler(client, message):
         f"Plan: {group['plan_start']} to {group['plan_end']}\n"
         f"Added by: {group['added_by']}"
     )
+
