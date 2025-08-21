@@ -10,6 +10,7 @@ def get_db():
 def create_tables():
     con = get_db()
     cur = con.cursor()
+    # Users table
     cur.execute("""
     CREATE TABLE IF NOT EXISTS users (
         user_id INTEGER PRIMARY KEY,
@@ -17,12 +18,14 @@ def create_tables():
         wallet REAL DEFAULT 0
     )
     """)
+    # Admin wallet
     cur.execute("""
     CREATE TABLE IF NOT EXISTS admin_wallet (
         id INTEGER PRIMARY KEY,
         amount REAL DEFAULT 0
     )
     """)
+    # Tables (matches)
     cur.execute("""
     CREATE TABLE IF NOT EXISTS tables (
         id INTEGER PRIMARY KEY AUTOINCREMENT,
@@ -31,6 +34,7 @@ def create_tables():
         status TEXT DEFAULT 'waiting'
     )
     """)
+    # Screenshots
     cur.execute("""
     CREATE TABLE IF NOT EXISTS screenshots (
         user_id INTEGER,
@@ -39,6 +43,7 @@ def create_tables():
         status TEXT DEFAULT 'pending'
     )
     """)
+    # Withdrawals
     cur.execute("""
     CREATE TABLE IF NOT EXISTS withdrawals (
         id INTEGER PRIMARY KEY AUTOINCREMENT,
@@ -47,33 +52,30 @@ def create_tables():
         status TEXT DEFAULT 'pending'
     )
     """)
+    # Groups
+    cur.execute("""
+    CREATE TABLE IF NOT EXISTS groups (
+        group_id INTEGER PRIMARY KEY,
+        added_by INTEGER,
+        is_premium INTEGER DEFAULT 0,
+        plan_start TEXT,
+        plan_end TEXT
+    )
+    """)
+    # Plans
+    cur.execute("""
+    CREATE TABLE IF NOT EXISTS plans (
+        plan_name TEXT PRIMARY KEY,
+        duration_days INTEGER,
+        price REAL
+    )
+    """)
+    # Add initial plans
+    cur.execute("INSERT OR IGNORE INTO plans VALUES ('1mon', 30, 100)")
+    cur.execute("INSERT OR IGNORE INTO plans VALUES ('3mon', 90, 300)")
+    cur.execute("INSERT OR IGNORE INTO plans VALUES ('12mon', 365, 1200)")
     con.commit()
     con.close()
-
-
-# Add to create_tables()
-cur.execute("""
-CREATE TABLE IF NOT EXISTS groups (
-    group_id INTEGER PRIMARY KEY,
-    added_by INTEGER,
-    is_premium INTEGER DEFAULT 0,
-    plan_start TEXT,
-    plan_end TEXT
-)
-""")
-cur.execute("""
-CREATE TABLE IF NOT EXISTS plans (
-    plan_name TEXT PRIMARY KEY,
-    duration_days INTEGER,
-    price REAL
-)
-""")
-# Add initial plans
-cur.execute("INSERT OR IGNORE INTO plans VALUES ('1mon', 30, 100)")
-cur.execute("INSERT OR IGNORE INTO plans VALUES ('3mon', 90, 300)")
-cur.execute("INSERT OR IGNORE INTO plans VALUES ('12mon', 365, 1200)")
-con.commit()
-
 
 def add_user(user_id, username):
     con = get_db()
@@ -166,10 +168,7 @@ def get_username(user_id):
     cur.execute("SELECT username FROM users WHERE user_id = ?", (user_id,))
     r = cur.fetchone()
     con.close()
-
     return r["username"] if r else ""
-
-
 
 def add_group(group_id, user_id, is_premium=0, start=None, end=None):
     con = get_db()
