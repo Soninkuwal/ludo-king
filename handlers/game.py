@@ -1,8 +1,9 @@
-from pyrogram import Client, filters
+#from pyrogram import Client, filters
+from bot import app
 from pyrogram.types import Message
 from database import save_screenshot, check_screenshot_utr, mark_win_verified, update_wallet
 
-@Client.on_message(filters.group & filters.photo)
+@app.on_message(filters.group & filters.photo)
 async def screenshot_upload_handler(client, message: Message):
     user_id = message.from_user.id
     if message.caption and "/win" in message.caption:
@@ -10,7 +11,7 @@ async def screenshot_upload_handler(client, message: Message):
         save_screenshot(user_id, file_id)
         await message.reply("Screenshot received! Admin will verify your win soon.")
 
-@Client.on_message(filters.command("verifyutr"))
+@app.on_message(filters.command("verifyutr"))
 async def verifyutr_handler(client, message: Message):
     parts = message.text.split()
     if len(parts) < 3:
@@ -21,4 +22,5 @@ async def verifyutr_handler(client, message: Message):
         mark_win_verified(user_id)
         await message.reply("UTR and screenshot verified. Win amount will be added.")
     else:
+
         await message.reply("UTR or screenshot not valid.")
