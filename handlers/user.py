@@ -1,4 +1,5 @@
-from pyrogram import Client, filters
+from bot import app
+from pyrogram import filters
 from pyrogram.types import Message
 from database import add_user, get_wallet, update_wallet, add_withdrawal, get_username
 from database import get_group
@@ -19,7 +20,7 @@ def is_group_allowed(group_id):
             return True
     return False
 
-@Client.on_message(filters.group & filters.text & filters.regex(r'^([51020340])0?r$'))
+@app.on_message(filters.group & filters.text & filters.regex(r'^([51020340])0?r$'))
 async def handle_amount(client, message):
     group_id = message.chat.id
     if not is_group_allowed(group_id):
@@ -48,13 +49,13 @@ async def handle_amount(client, message):
     )
 
 
-@Client.on_message(filters.command("wallet"))
+@app.on_message(filters.command("wallet"))
 async def wallet_handler(client, message: Message):
     user_id = message.from_user.id
     balance = get_wallet(user_id)
     await message.reply(f"Your wallet balance: ₹{balance:.2f}")
 
-@Client.on_message(filters.command("withdraw"))
+@app.on_message(filters.command("withdraw"))
 async def withdraw_handler(client, message: Message):
     parts = message.text.split()
     if len(parts) < 2:
@@ -71,12 +72,12 @@ async def withdraw_handler(client, message: Message):
         "Withdrawal request submitted. Please send your payment details to the admin."
     )
 
-@Client.on_callback_query(filters.regex("join_table"))
+@app.on_callback_query(filters.regex("join_table"))
 async def join_table_handler(client, callback_query):
     # For demo: Just reply, actual logic needed
     await callback_query.answer("You have joined the Ludo table. Wait for another player.")
 
-@Client.on_message(filters.command("tablechat"))
+@app.on_message(filters.command("tablechat"))
 async def tablechat_handler(client, message: Message):
     # Demo: just for sample
 
