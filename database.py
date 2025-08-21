@@ -74,21 +74,32 @@ def create_tables():
     cur.execute("INSERT OR IGNORE INTO plans VALUES ('1mon', 30, 100)")
     cur.execute("INSERT OR IGNORE INTO plans VALUES ('3mon', 90, 300)")
     cur.execute("INSERT OR IGNORE INTO plans VALUES ('12mon', 365, 1200)")
-    # Add these tables
-    CREATE TABLE IF NOT EXISTS premium_groups (
-        group_id INTEGER PRIMARY KEY,
-        plan_type TEXT,
-        expiry_date TIMESTAMP
-    );
+    def initialize_db():
+        with sqlite3.connect('ludo.db') as con:
+            cur = con.cursor()
+            
+            # Create premium groups table
+            cur.execute("""
+            CREATE TABLE IF NOT EXISTS premium_groups (
+                group_id INTEGER PRIMARY KEY,
+                plan_type TEXT,
+                expiry_date TIMESTAMP
+            )
+            """)
     
-    CREATE TABLE IF NOT EXISTS game_tables (
-        id INTEGER PRIMARY KEY AUTOINCREMENT,
-        group_id INTEGER,
-        amount INTEGER,
-        players TEXT,
-        status TEXT DEFAULT 'waiting',
-        created_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP
-    );
+            # Create game tables
+            cur.execute("""
+            CREATE TABLE IF NOT EXISTS game_tables (
+                id INTEGER PRIMARY KEY AUTOINCREMENT,
+                group_id INTEGER,
+                amount INTEGER,
+                players TEXT,
+                status TEXT DEFAULT 'waiting',
+                created_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP
+            )
+            """)
+            
+            con.commit()
     
     CREATE TABLE IF NOT EXISTS subscriptions (
         group_id INTEGER PRIMARY KEY,
