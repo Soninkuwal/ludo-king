@@ -33,7 +33,7 @@ START_BTN = InlineKeyboardMarkup([
 @app.on_message(filters.command("start"))
 async def start_handler(client, message):
     await message.reply_photo(
-        "start_thumb.jpg",
+        "https://graph.org/file/cfd480c2bdb7b3d2f44a1-bd93c08bfa2255ed9b.jpg",
         caption="Welcome to Ludo King Bot! Play and Win.",
         reply_markup=START_BTN
     )
@@ -47,4 +47,5 @@ import handlers.game
 if __name__ == "__main__":
     # For polling (default), PORT is not used. For webhooks, you can use it.
     app.run()
+
 
