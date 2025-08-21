@@ -1,7 +1,11 @@
+import os
+import config
 from pyrogram import Client, filters
 from pyrogram.types import InlineKeyboardMarkup, InlineKeyboardButton
-import config
 from database import create_tables, add_user
+
+# For Koyeb/Render/Heroku compatibility (not strictly required for polling, but no harm)
+PORT = int(os.environ.get("PORT", 8080))
 
 app = Client("ludo_king_bot",
              api_id=config.API_ID,
@@ -31,4 +35,6 @@ import handlers.user
 import handlers.admin
 import handlers.game
 
-app.run()
+if __name__ == "__main__":
+    # For polling (default), PORT is not used. For webhooks, you can use it.
+    app.run()
