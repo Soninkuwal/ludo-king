@@ -87,6 +87,15 @@ heroku config:set API_ID=xxx API_HASH=xxx BOT_TOKEN=xxx
 
 ---
 
+
+## Health Checks
+
+- Your instance will pass health checks if `/health` returns `OK` (HTTP 200).
+- The bot will reply to `/start` commands in private and groups.
+- To test: Open `https://your-app-url/health` in a browser, and use `/start` in Telegram with your bot.
+
+- 
+
 ## Commands
 
 - `/start` - Start bot, join table links
@@ -122,3 +131,4 @@ heroku config:set API_ID=xxx API_HASH=xxx BOT_TOKEN=xxx
 
 
 MIT
+
