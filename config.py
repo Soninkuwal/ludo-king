@@ -21,7 +21,8 @@ BOT_TOKEN = environ.get("BOT_TOKEN", "")
 
 # Put Telegram user IDs of all admins
 #ADMINS = [123456789, 987654321]
-ADMINS = environ.get("ADMINS", "")
-OWNER_ID = environ.get("OWNER_ID", "")
+ADMINS = environ.get("ADMINS", "7841292070")
+OWNER_ID = environ.get("OWNER_ID", "7841292070")
+
 
 
